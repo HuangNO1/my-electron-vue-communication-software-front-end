@@ -23,6 +23,9 @@
           <v-window v-model="step">
             <!-- Sign In -->
             <v-window-item :value="1">
+              <div class="white--text display-2 text-center">
+                <p>SIGN IN</p>
+              </div>
               <v-card-text>
                 <v-text-field
                   v-model="signInEmail"
@@ -61,6 +64,9 @@
             </v-window-item>
             <!-- Sign Up Part 1 -->
             <v-window-item :value="2">
+              <div class="white--text display-2 text-center">
+                <p>SIGN UP</p>
+              </div>
               <v-card-text>
                 <!-- username -->
                 <v-text-field
@@ -95,14 +101,19 @@
                 </v-text-field>
               </v-card-text>
               <v-card-actions>
-                <v-btn block x-large color="success" @click="step++">Next</v-btn>
+                <v-btn block x-large color="success" @click="step++"
+                  >Next</v-btn
+                >
               </v-card-actions>
-              <div class="white--text mt-5" style="text-align: start;">
-                  <a @click="step--">Back to sign in.</a>
+              <div class="white--text mt-5" style="text-align: center;">
+                <a @click="step--">Back to sign in.</a>
               </div>
             </v-window-item>
             <!-- Sign Up Part 2 -->
             <v-window-item :value="3">
+              <div class="white--text display-2 text-center">
+                <p>SIGN UP</p>
+              </div>
               <v-card-text>
                 <!-- password -->
                 <v-text-field
@@ -147,39 +158,52 @@
                 ></v-checkbox>
               </v-card-text>
               <v-card-actions>
-                <v-btn block x-large color="warning" @click="step++">Sign Up</v-btn>
+                <v-btn block x-large color="warning" @click="step++"
+                  >Sign Up</v-btn
+                >
               </v-card-actions>
-              <div class="white--text mt-5" style="text-align: start;">
-                  <a @click="step--">Back to previous step.</a>
+              <div class="white--text mt-5" style="text-align: center;">
+                <a @click="step--">Back to previous step.</a>
               </div>
             </v-window-item>
+            <!-- 驗證 email -->
             <v-window-item :value="4">
-              <div class="pa-4 text-center">
-                <v-img
-                  class="mb-4"
-                  contain
-                  height="128"
-                  src="https://cdn.vuetifyjs.com/images/logos/v.svg"
-                ></v-img>
-                <h3 class="title font-weight-light mb-2">
-                  Welcome to Vuetify
-                </h3>
-                <span class="caption grey--text">Thanks for signing up!</span>
+              <div class="white--text display-2 text-center">
+                <p>VERIFY</p>
+              </div>
+              <v-card-text>
+                <v-text-field
+                  v-model="signUpCaptcha"
+                  label="Captcha"
+                  outlined
+                  required
+                  dark
+                >
+                </v-text-field>
+              </v-card-text>
+              <v-card-actions>
+                <v-btn block x-large color="error" @click="step++"
+                  >VERIFY</v-btn
+                >
+              </v-card-actions>
+              <div class="white--text mt-5" style="text-align: center;">
+                <a @click="step-=2">Refill the form.</a>
               </div>
             </v-window-item>
+            <!-- 註冊成功 -->
             <v-window-item :value="5">
-              <div class="pa-4 text-center">
-                <v-img
-                  class="mb-4"
-                  contain
-                  height="128"
-                  src="https://cdn.vuetifyjs.com/images/logos/v.svg"
-                ></v-img>
-                <h3 class="title font-weight-light mb-2">
-                  Welcome to Vuetify
-                </h3>
-                <span class="caption grey--text">Thanks for signing up!</span>
+              <div class="white--text display-2 text-center">
+                <p>Welcome to BlutX</p>
               </div>
+              <v-card-text class="text-center">
+                <v-icon dark style="font-size: 15rem;">mdi-check-circle</v-icon><br>
+                <p class="white--text">You sign up successfully.</p>
+              </v-card-text>
+              <v-card-actions>
+                <v-btn block x-large color="teal" @click="step++"
+                  >Sign In
+                </v-btn>
+              </v-card-actions>
             </v-window-item>
           </v-window>
         </v-card>
@@ -237,8 +261,11 @@ export default {
     signUpRepeatEye: "mdi-eye-off",
     signUpSeeRepeatPwd: "password",
     signUpCheckbox: true,
+    signUpCaptcha: "",
   }),
   methods: {
+    // -----------------------------------------------
+    // 是否可以看到密碼的函式
     signInEyeClick() {
       if (this.signInEye === "mdi-eye-off") {
         this.signInEye = "mdi-eye";
@@ -266,6 +293,7 @@ export default {
         this.signUpSeeRepeatPwd = "password";
       }
     },
+    //----------------------------------------------
   },
   computed: {
     currentTitle() {
