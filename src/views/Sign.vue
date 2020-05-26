@@ -56,7 +56,7 @@
               </v-card-text>
 
               <v-card-actions>
-                <v-btn block x-large color="primary">Sign In</v-btn>
+                <v-btn block x-large color="primary" to="main">Sign In</v-btn>
               </v-card-actions>
               <div class="white--text mt-5" style="text-align: center">
                 <p>Have no account? To <a @click="step++">sign up</a>.</p>
