@@ -51,7 +51,7 @@
                   </v-icon>
                 </v-text-field>
                 <div class="white--text mt-5" style="text-align: end;">
-                  <a>Forgot password?</a>
+                  <a @click="step = 6">Forgot password?</a>
                 </div>
               </v-card-text>
 
@@ -187,7 +187,7 @@
                 >
               </v-card-actions>
               <div class="white--text mt-5" style="text-align: center;">
-                <a @click="step-=2">Refill the form.</a>
+                <a @click="step -= 2">Refill the form.</a>
               </div>
             </v-window-item>
             <!-- 註冊成功 -->
@@ -196,14 +196,40 @@
                 <p>Welcome to BlutX</p>
               </div>
               <v-card-text class="text-center">
-                <v-icon dark style="font-size: 15rem;">mdi-check-circle</v-icon><br>
+                <v-icon dark style="font-size: 15rem;">mdi-check-circle</v-icon
+                ><br />
                 <p class="white--text">You sign up successfully.</p>
               </v-card-text>
               <v-card-actions>
-                <v-btn block x-large color="teal" @click="step++"
+                <v-btn block x-large color="teal" @click="step=1"
                   >Sign In
                 </v-btn>
               </v-card-actions>
+            </v-window-item>
+            <!-- 忘記密碼找回 -->
+            <v-window-item :value="6">
+              <div class="white--text display-2 text-center">
+                <p>FORGOT PASSWORD</p>
+              </div>
+              <v-card-text class="text-center">
+                <p class="white--text">
+                  Please enter your origin email to get new password.
+                </p>
+                <!-- email -->
+                <v-text-field
+                  v-model="forgotEmail"
+                  label="E-mail"
+                  outlined
+                  required
+                  dark
+                >
+                  <v-icon slot="prepend" color="white">mdi-email</v-icon>
+                </v-text-field>
+              </v-card-text>
+              <v-btn block x-large color="error" class="mb-4">Get New Password </v-btn>
+              <v-btn block x-large color="indigo" @click="step = 1"
+                >Sign In
+              </v-btn>
             </v-window-item>
           </v-window>
         </v-card>
@@ -262,6 +288,8 @@ export default {
     signUpSeeRepeatPwd: "password",
     signUpCheckbox: true,
     signUpCaptcha: "",
+    // Forgot Password
+    forgotEmail: "",
   }),
   methods: {
     // -----------------------------------------------
