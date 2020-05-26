@@ -23,7 +23,7 @@ function createWindow() {
             webSecurity: false,
             nodeIntegration: true
         }, // eslint-disable-next-line no-undef
-        icon: `${__static}/app.ico`
+        icon: `${__static}/icon.svg`
     })
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -37,32 +37,32 @@ function createWindow() {
     }
 
     win.on('closed', () => {
-        win = null
-    })
-    createMenu()
+            win = null
+        })
+        // createMenu()
 }
 
-// 设置菜单栏
-function createMenu() {
-    // darwin表示macOS，针对macOS的设置
-    if (process.platform === 'darwin') {
-        const template = [{
-            label: 'App Demo',
-            submenu: [{
-                    role: 'about'
-                },
-                {
-                    role: 'quit'
-                }
-            ]
-        }]
-        let menu = Menu.buildFromTemplate(template)
-        Menu.setApplicationMenu(menu)
-    } else {
-        // windows及linux系统
-        Menu.setApplicationMenu(null)
-    }
-}
+// // 设置菜单栏
+// function createMenu() {
+//     // darwin表示macOS，针对macOS的设置
+//     if (process.platform === 'darwin') {
+//         const template = [{
+//             label: 'App Demo',
+//             submenu: [{
+//                     role: 'about'
+//                 },
+//                 {
+//                     role: 'quit'
+//                 }
+//             ]
+//         }]
+//         let menu = Menu.buildFromTemplate(template)
+//         Menu.setApplicationMenu(menu)
+//     } else {
+//         // windows及linux系统
+//         Menu.setApplicationMenu(null)
+//     }
+// }
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {

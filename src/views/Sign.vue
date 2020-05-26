@@ -15,7 +15,7 @@
     <v-content style="height: 100%">
       <v-container fluid>
         <v-card
-          class="mx-auto p4 mt-12"
+          class="mx-auto p4 mt-5"
           max-width="500"
           style="background-color: #212121;"
           flat
@@ -23,51 +23,137 @@
           <v-window v-model="step">
             <v-window-item :value="1">
               <v-card-text>
-                <!-- name -->
                 <v-text-field
-                  v-model="signInUsername"
-                  :error-messages="signInUsernameErrors"
-                  :success-messages="nameSuccess"
+                  v-model="signInEmail"
                   label="E-mail"
+                  outlined
+                  required
+                  dark
+                >
+                  <v-icon slot="prepend" color="white">mdi-email</v-icon>
+                </v-text-field>
+
+                <v-text-field
+                  v-model="signInPassword"
+                  label="Password"
+                  :type="signInSeePwd"
+                  outlined
+                  required
+                  dark
+                >
+                  <v-icon slot="prepend" color="white">mdi-lock</v-icon>
+                  <v-icon slot="append" color="red" @click="signInEyeClick">
+                    {{ signInEye }}
+                  </v-icon>
+                </v-text-field>
+                <div class="white--text mt-5" style="text-align: end;">
+                  <a>Forgot password?</a>
+                </div>
+              </v-card-text>
+
+              <v-card-actions>
+                <v-btn block x-large color="primary">Sign In</v-btn>
+              </v-card-actions>
+              <div class="white--text mt-5" style="text-align: center">
+                <p>Have no account? To <a @click="step++">sign up</a>.</p>
+              </div>
+            </v-window-item>
+
+            <v-window-item :value="2">
+              <v-card-text>
+                <!-- username -->
+                <v-text-field
+                  v-model="signUpUsername"
+                  :counter="20"
+                  label="Username"
                   outlined
                   required
                   dark
                 >
                   <v-icon slot="prepend" color="white">mdi-account</v-icon>
                 </v-text-field>
+                <!-- email -->
+                <v-text-field
+                  v-model="signUpEmail"
+                  label="E-mail"
+                  outlined
+                  required
+                  dark
+                >
+                  <v-icon slot="prepend" color="white">mdi-email</v-icon>
+                </v-text-field>
+                <!-- phone number -->
+                <v-text-field
+                  v-model="signUpPhone"
+                  label="Phone"
+                  outlined
+                  required
+                  dark
+                >
+                  <v-icon slot="prepend" color="white">mdi-cellphone</v-icon>
+                </v-text-field>
+              </v-card-text>
+            </v-window-item>
+            <v-window-item :value="3">
+              <v-card-text>
                 <!-- password -->
                 <v-text-field
-                  v-model="password"
-                  :type="seePwd"
-                  :error-messages="passwordErrors"
-                  :success-messages="passwordSuccess"
+                  v-model="signUpPassword"
+                  :type="signUpSeePwd"
                   label="Password"
                   outlined
                   required
                   dark
                 >
                   <v-icon slot="prepend" color="white">mdi-lock</v-icon>
-                  <v-icon slot="append" color="red" @click="eyeClick">{{
-                    eye
+                  <v-icon slot="append" color="red" @click="signUpEyeClick">{{
+                    signUpEye
                   }}</v-icon>
                 </v-text-field>
-              </v-card-text>
-            </v-window-item>
-
-            <v-window-item :value="2">
-              <v-card-text>
-                <v-text-field label="Password" type="password"></v-text-field>
+                <!-- repeat password -->
                 <v-text-field
-                  label="Confirm Password"
-                  type="password"
-                ></v-text-field>
-                <span class="caption grey--text text--darken-1">
-                  Please enter a password for your account
-                </span>
+                  v-model="signUpRepeatPassword"
+                  :type="signUpSeeRepeatPwd"
+                  label="Repeat Password"
+                  outlined
+                  required
+                  dark
+                >
+                  <v-icon slot="prepend" color="white"
+                    >mdi-lock-question</v-icon
+                  >
+                  <v-icon
+                    slot="append"
+                    color="red"
+                    @click="signUpRepeatEyeClick"
+                  >
+                    {{ signUpRepeatEye }}
+                  </v-icon>
+                </v-text-field>
+                <!-- agree -->
+                <v-checkbox
+                  v-model="signUpCheckbox"
+                  label="I accept Pet Home's privacy policy."
+                  required
+                  dark
+                ></v-checkbox>
               </v-card-text>
             </v-window-item>
-
-            <v-window-item :value="3">
+            <v-window-item :value="4">
+              <div class="pa-4 text-center">
+                <v-img
+                  class="mb-4"
+                  contain
+                  height="128"
+                  src="https://cdn.vuetifyjs.com/images/logos/v.svg"
+                ></v-img>
+                <h3 class="title font-weight-light mb-2">
+                  Welcome to Vuetify
+                </h3>
+                <span class="caption grey--text">Thanks for signing up!</span>
+              </div>
+            </v-window-item>
+            <v-window-item :value="5">
               <div class="pa-4 text-center">
                 <v-img
                   class="mb-4"
@@ -86,7 +172,12 @@
       </v-container>
     </v-content>
     <v-footer dark fixed padless>
-      <v-card flat tile class="dark lighten-1 white--text text-center">
+      <v-card
+        flat
+        tile
+        class="dark lighten-1 white--text text-center"
+        style="width: 100%"
+      >
         <v-card-text>
           <v-btn
             v-for="icon in icons"
@@ -99,14 +190,8 @@
         </v-card-text>
 
         <v-card-text class="white--text pt-0">
-          Phasellus feugiat arcu sapien, et iaculis ipsum elementum sit amet.
-          Mauris cursus commodo interdum. Praesent ut risus eget metus luctus
-          accumsan id ultrices nunc. Sed at orci sed massa consectetur dignissim
-          a sit amet dui. Duis commodo vitae velit et faucibus. Morbi vehicula
-          lacinia malesuada. Nulla placerat augue vel ipsum ultrices, cursus
-          iaculis dui sollicitudin. Vestibulum eu ipsum vel diam elementum
-          tempor vel ut orci. Orci varius natoque penatibus et magnis dis
-          parturient montes, nascetur ridiculus mus.
+          We are a senior team, and we have produced such a great communication
+          software.
         </v-card-text>
 
         <v-card-text class="white--text">
@@ -122,7 +207,52 @@ export default {
   data: () => ({
     step: 1,
     icons: ["mdi-github", "mdi-telegram", "mdi-twitter"],
+    // Sign In
+    signInEmail: "",
+    signInPassword: "",
+    signInEye: "mdi-eye-off",
+    signInSeePwd: "password",
+    // Sign Up
+    signUpUsername: "",
+    signUpEmail: "",
+    signUpPhone: "",
+    signUpPassword: "",
+    signUpRepeatPassword: "",
+    signUpEye: "mdi-eye-off",
+    signUpSeePwd: "password",
+    signUpRepeatEye: "mdi-eye-off",
+    signUpSeeRepeatPwd: "password",
+    signUpCheckbox: true,
   }),
+  methods: {
+    signInEyeClick() {
+      if (this.signInEye === "mdi-eye-off") {
+        this.signInEye = "mdi-eye";
+        this.signInSeePwd = "";
+      } else {
+        this.signInEye = "mdi-eye-off";
+        this.signInSeePwd = "password";
+      }
+    },
+    signUpEyeClick() {
+      if (this.signUpEye === "mdi-eye-off") {
+        this.signUpEye = "mdi-eye";
+        this.signUpSeePwd = "";
+      } else {
+        this.signUpEye = "mdi-eye-off";
+        this.signUpSeePwd = "password";
+      }
+    },
+    signUpRepeatEyeClick() {
+      if (this.signUpRepeatEye === "mdi-eye-off") {
+        this.signUpRepeatEye = "mdi-eye";
+        this.signUpSeeRepeatPwd = "";
+      } else {
+        this.signUpRepeatEye = "mdi-eye-off";
+        this.signUpSeeRepeatPwd = "password";
+      }
+    },
+  },
   computed: {
     currentTitle() {
       switch (this.step) {
