@@ -21,6 +21,7 @@
           flat
         >
           <v-window v-model="step">
+            <!-- Sign In -->
             <v-window-item :value="1">
               <v-card-text>
                 <v-text-field
@@ -58,7 +59,7 @@
                 <p>Have no account? To <a @click="step++">sign up</a>.</p>
               </div>
             </v-window-item>
-
+            <!-- Sign Up Part 1 -->
             <v-window-item :value="2">
               <v-card-text>
                 <!-- username -->
@@ -93,7 +94,14 @@
                   <v-icon slot="prepend" color="white">mdi-cellphone</v-icon>
                 </v-text-field>
               </v-card-text>
+              <v-card-actions>
+                <v-btn block x-large color="success" @click="step++">Next</v-btn>
+              </v-card-actions>
+              <div class="white--text mt-5" style="text-align: start;">
+                  <a @click="step--">Back to sign in.</a>
+              </div>
             </v-window-item>
+            <!-- Sign Up Part 2 -->
             <v-window-item :value="3">
               <v-card-text>
                 <!-- password -->
@@ -138,6 +146,12 @@
                   dark
                 ></v-checkbox>
               </v-card-text>
+              <v-card-actions>
+                <v-btn block x-large color="warning" @click="step++">Sign Up</v-btn>
+              </v-card-actions>
+              <div class="white--text mt-5" style="text-align: start;">
+                  <a @click="step--">Back to previous step.</a>
+              </div>
             </v-window-item>
             <v-window-item :value="4">
               <div class="pa-4 text-center">
