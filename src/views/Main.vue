@@ -15,7 +15,7 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item v-for="item in items" :key="item.title" link>
+        <v-list-item v-for="(item, i) in items" :key="item.i" link>
           <v-list-item-icon>
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-item-icon>
@@ -57,7 +57,7 @@
       <v-divider></v-divider>
 
       <v-list>
-        <v-list-item v-for="item in items" :key="item.title" link>
+        <v-list-item v-for="(item, i) in items" :key="item.i" link>
           <v-list-item-icon>
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-item-icon>
@@ -70,21 +70,29 @@
     </v-navigation-drawer>
 
     <v-content>
-      <v-row style="padding: 0; margin: 0;">
-        <v-col xs="auto" sm="auto" md="auto" lg="auto" xl="auto">
-          <vue-resizable
-            minWidth="200"
-            maxWidth="800"
-            height="100%"
-            :active="['r']"
-          >
-            <div>
-              <v-list class="resizable-content" two-line subheader dark>
+      <v-row style="padding: 0; margin: 0; height: 100%">
+        <v-col
+          xs="auto"
+          sm="auto"
+          md="auto"
+          lg="auto"
+          xl="auto"
+          style="padding: 0; margin: 0; "
+        >
+          <div>
+            <vue-resizable
+              :minWidth="200"
+              :maxWidth="800"
+              :maxHeight="720"
+              :active="['r']"
+              style="overflow-y: auto; overflow-x: hidden;"
+            >
+              <v-list class="resizable-content" height="100%"  two-line subheader dark>
                 <v-subheader inset>Folders</v-subheader>
 
                 <v-list-item
-                  v-for="item in TESTitems"
-                  :key="item.title"
+                  v-for="(item, i) in TESTitems"
+                  :key="item.i"
                   @click=""
                   dark
                 >
@@ -114,8 +122,8 @@
                 <v-subheader inset>Files</v-subheader>
 
                 <v-list-item
-                  v-for="item in TESTitems2"
-                  :key="item.title"
+                  v-for="(item, i) in TESTitems2"
+                  :key="item.i"
                   @click=""
                 >
                   <v-list-item-avatar>
@@ -139,13 +147,11 @@
                   </v-list-item-action>
                 </v-list-item>
               </v-list>
-            </div>
-          </vue-resizable>
-        </v-col>
-        <v-col>
-          <div style="background-color: blue">
-            jjjjjjjj
+            </vue-resizable>
           </div>
+        </v-col>
+        <v-col style="padding: 0; margin: 0;height: 100%; overflow-y: auto;">
+          <Chat></Chat>
         </v-col>
       </v-row>
 
@@ -155,9 +161,11 @@
 </template>
 <script>
 import VueResizable from "vue-resizable";
+import Chat from "../components/Chat";
 
 export default {
   components: {
+    Chat,
     VueResizable,
   },
   data() {
@@ -249,10 +257,25 @@ export default {
   },
 };
 </script>
+<style>
+::-webkit-scrollbar {
+  width: 8px;
+  background: #212121;
+}
+::-webkit-scrollbar-track {
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  margin: 5px 0 5px 0;
+}
+::-webkit-scrollbar-thumb {
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  background: #212121;
+}
+</style>
 <style scoped>
 .resizable-content {
   height: 100%;
-  background-color: #303030;
-  overflow: auto;
+  background-color: #252525;
 }
 </style>
