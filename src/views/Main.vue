@@ -1,6 +1,6 @@
 <template>
   <div style="background-color: #212121; height: 100%">
-    <v-navigation-drawer color="grey darken-3" mini-variant permanent dark app>
+    <v-navigation-drawer color="grey darken-4" mini-variant permanent dark app>
       <v-list nav class="py-0">
         <v-list-item class="px-0">
           <v-list-item-avatar>
@@ -70,81 +70,95 @@
     </v-navigation-drawer>
 
     <v-content>
-      <v-container fluid>
-        <multipane class="vertical-panes" layout="vertical">
-          <div class="pane">
-            <v-list two-line subheader>
-              <v-subheader inset>Folders</v-subheader>
+      <v-row style="padding: 0; margin: 0;">
+        <v-col xs="auto" sm="auto" md="auto" lg="auto" xl="auto">
+          <vue-resizable
+            minWidth="200"
+            maxWidth="800"
+            height="100%"
+            :active="['r']"
+          >
+            <div>
+              <v-list class="resizable-content" two-line subheader dark>
+                <v-subheader inset>Folders</v-subheader>
 
-              <v-list-item
-                v-for="item in TESTitems"
-                :key="item.title"
-                @click=""
-              >
-                <v-list-item-avatar>
-                  <v-icon :class="[item.iconClass]" v-text="item.icon"></v-icon>
-                </v-list-item-avatar>
+                <v-list-item
+                  v-for="item in TESTitems"
+                  :key="item.title"
+                  @click=""
+                  dark
+                >
+                  <v-list-item-avatar>
+                    <v-icon
+                      :class="[item.iconClass]"
+                      v-text="item.icon"
+                    ></v-icon>
+                  </v-list-item-avatar>
 
-                <v-list-item-content>
-                  <v-list-item-title v-text="item.title"></v-list-item-title>
-                  <v-list-item-subtitle
-                    v-text="item.subtitle"
-                  ></v-list-item-subtitle>
-                </v-list-item-content>
+                  <v-list-item-content>
+                    <v-list-item-title v-text="item.title"></v-list-item-title>
+                    <v-list-item-subtitle
+                      v-text="item.subtitle"
+                    ></v-list-item-subtitle>
+                  </v-list-item-content>
 
-                <v-list-item-action>
-                  <v-btn icon>
-                    <v-icon color="grey lighten-1">mdi-information</v-icon>
-                  </v-btn>
-                </v-list-item-action>
-              </v-list-item>
+                  <v-list-item-action>
+                    <v-btn icon>
+                      <v-icon color="grey lighten-1">mdi-information</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
+                </v-list-item>
 
-              <v-divider inset></v-divider>
+                <v-divider inset></v-divider>
 
-              <v-subheader inset>Files</v-subheader>
+                <v-subheader inset>Files</v-subheader>
 
-              <v-list-item
-                v-for="item in TESTitems2"
-                :key="item.title"
-                @click=""
-              >
-                <v-list-item-avatar>
-                  <v-icon :class="[item.iconClass]" v-text="item.icon"></v-icon>
-                </v-list-item-avatar>
+                <v-list-item
+                  v-for="item in TESTitems2"
+                  :key="item.title"
+                  @click=""
+                >
+                  <v-list-item-avatar>
+                    <v-icon
+                      :class="[item.iconClass]"
+                      v-text="item.icon"
+                    ></v-icon>
+                  </v-list-item-avatar>
 
-                <v-list-item-content>
-                  <v-list-item-title v-text="item.title"></v-list-item-title>
-                  <v-list-item-subtitle
-                    v-text="item.subtitle"
-                  ></v-list-item-subtitle>
-                </v-list-item-content>
+                  <v-list-item-content>
+                    <v-list-item-title v-text="item.title"></v-list-item-title>
+                    <v-list-item-subtitle
+                      v-text="item.subtitle"
+                    ></v-list-item-subtitle>
+                  </v-list-item-content>
 
-                <v-list-item-action>
-                  <v-btn icon>
-                    <v-icon color="grey lighten-1">mdi-information</v-icon>
-                  </v-btn>
-                </v-list-item-action>
-              </v-list-item>
-            </v-list>
-          </div>
-          <multipane-resizer></multipane-resizer>
-          <div class="pane" style="width: 100%">
+                  <v-list-item-action>
+                    <v-btn icon>
+                      <v-icon color="grey lighten-1">mdi-information</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
+                </v-list-item>
+              </v-list>
+            </div>
+          </vue-resizable>
+        </v-col>
+        <v-col>
+          <div style="background-color: blue">
             jjjjjjjj
           </div>
-        </multipane>
-      </v-container>
+        </v-col>
+      </v-row>
 
       <!--<v-container id="cnt" fluid> </v-container>-->
     </v-content>
   </div>
 </template>
 <script>
-import { Multipane, MultipaneResizer } from "vue-multipane";
+import VueResizable from "vue-resizable";
 
 export default {
   components: {
-    Multipane,
-    MultipaneResizer,
+    VueResizable,
   },
   data() {
     return {
@@ -174,6 +188,48 @@ export default {
           title: "Work",
           subtitle: "Jan 28, 2014",
         },
+        {
+          icon: "folder",
+          iconClass: "grey lighten-1 white--text",
+          title: "Work",
+          subtitle: "Jan 28, 2014",
+        },
+        {
+          icon: "folder",
+          iconClass: "grey lighten-1 white--text",
+          title: "Work",
+          subtitle: "Jan 28, 2014",
+        },
+        {
+          icon: "folder",
+          iconClass: "grey lighten-1 white--text",
+          title: "Work",
+          subtitle: "Jan 28, 2014",
+        },
+        {
+          icon: "folder",
+          iconClass: "grey lighten-1 white--text",
+          title: "Work",
+          subtitle: "Jan 28, 2014",
+        },
+        {
+          icon: "folder",
+          iconClass: "grey lighten-1 white--text",
+          title: "Work",
+          subtitle: "Jan 28, 2014",
+        },
+        {
+          icon: "folder",
+          iconClass: "grey lighten-1 white--text",
+          title: "Work",
+          subtitle: "Jan 28, 2014",
+        },
+        {
+          icon: "folder",
+          iconClass: "grey lighten-1 white--text",
+          title: "Work",
+          subtitle: "Jan 28, 2014",
+        },
       ],
       TESTitems2: [
         {
@@ -193,19 +249,10 @@ export default {
   },
 };
 </script>
-<style>
-.vertical-panes {
-  width: 100%;
-  height: 1080px;
-  border: 1px solid rgba(0,0,0,0);
-}
-.vertical-panes > .pane {
-  text-align: left;
-  padding: 15px;
+<style scoped>
+.resizable-content {
+  height: 100%;
+  background-color: #303030;
   overflow: auto;
-  background: #eee;
-}
-.vertical-panes > .pane ~ .pane {
-  border-left: 1px solid rgba(0,0,0,0);
 }
 </style>
