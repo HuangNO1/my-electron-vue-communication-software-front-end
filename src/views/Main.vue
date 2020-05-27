@@ -1,5 +1,5 @@
 <template>
-  <div style="background-color: #212121; height: 100%">
+  <div style="background-color: #212121; height: 100%; padding-bottom: 2rem;">
     <v-navigation-drawer color="grey darken-4" mini-variant permanent dark app>
       <v-list nav class="py-0">
         <v-list-item class="px-0">
@@ -83,11 +83,16 @@
             <vue-resizable
               :minWidth="200"
               :maxWidth="800"
-              :maxHeight="720"
               :active="['r']"
               style="overflow-y: auto; overflow-x: hidden;"
             >
-              <v-list class="resizable-content" height="100%"  two-line subheader dark>
+              <v-list
+                class="resizable-content"
+                height="100%"
+                two-line
+                subheader
+                dark
+              >
                 <v-subheader inset>Folders</v-subheader>
 
                 <v-list-item
@@ -150,13 +155,29 @@
             </vue-resizable>
           </div>
         </v-col>
-        <v-col style="padding: 0; margin: 0;height: 100%; overflow-y: auto;">
+        <v-col style="padding: 0; margin: 0;height: 100%; width: 100%;">
           <Chat></Chat>
         </v-col>
       </v-row>
 
       <!--<v-container id="cnt" fluid> </v-container>-->
     </v-content>
+    <v-footer id="footer" dark fixed app padless>
+      <v-textarea
+        name=""
+        label="Enter"
+        value=""
+        dense
+        hide-details
+        rows="1"
+        solo
+        row-height="15"
+        auto-grow
+        dark
+        autofocus
+        placeholder="Input some messages..."
+      ></v-textarea>
+    </v-footer>
   </div>
 </template>
 <script>
@@ -277,5 +298,10 @@ export default {
 .resizable-content {
   height: 100%;
   background-color: #252525;
+}
+
+#footer {
+  padding: 1rem 1rem 1rem 25rem;
+  background-color: rbga(0,0,0,0)
 }
 </style>
