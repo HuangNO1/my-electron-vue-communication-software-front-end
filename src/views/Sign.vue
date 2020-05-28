@@ -84,6 +84,10 @@
                   outlined
                   required
                   dark
+                  :error-messages="signUpUsernameErrorsFunc"
+                  :success-messages="signUpUsernameSuccessFunc"
+                  @input="$v.signUpUsername.$touch()"
+                  @blur="$v.signUpUsername.$touch()"
                 >
                   <v-icon slot="prepend" color="white">mdi-account</v-icon>
                 </v-text-field>
@@ -94,6 +98,10 @@
                   outlined
                   required
                   dark
+                  :error-messages="signUpEmailErrorsFunc"
+                  :success-messages="signUpEmailSuccessFunc"
+                  @input="$v.signUpEmail.$touch()"
+                  @blur="$v.signUpEmail.$touch()"
                 >
                   <v-icon slot="prepend" color="white">mdi-email</v-icon>
                 </v-text-field>
@@ -104,6 +112,10 @@
                   outlined
                   required
                   dark
+                  :error-messages="signUpPhoneErrorsFunc"
+                  :success-messages="signUpPhoneSuccessFunc"
+                  @input="$v.signUpPhone.$touch()"
+                  @blur="$v.signUpPhone.$touch()"
                 >
                   <v-icon slot="prepend" color="white">mdi-cellphone</v-icon>
                 </v-text-field>
@@ -131,6 +143,10 @@
                   outlined
                   required
                   dark
+                  :error-messages="signUpPasswordErrorsFunc"
+                  :success-messages="signUpPasswordSuccessFunc"
+                  @input="$v.signUpPassword.$touch()"
+                  @blur="$v.signUpPassword.$touch()"
                 >
                   <v-icon slot="prepend" color="white">mdi-lock</v-icon>
                   <v-icon slot="append" color="red" @click="signUpEyeClick">{{
@@ -145,6 +161,10 @@
                   outlined
                   required
                   dark
+                  :error-messages="signUpRepeatPasswordErrorsFunc"
+                  :success-messages="signUpRepeatPasswordSuccessFunc"
+                  @input="$v.signUpRepeatPassword.$touch()"
+                  @blur="$v.signUpRepeatPassword.$touch()"
                 >
                   <v-icon slot="prepend" color="white"
                     >mdi-lock-question</v-icon
@@ -163,6 +183,9 @@
                   label="I accept Pet Home's privacy policy."
                   required
                   dark
+                  :error-messages="signUpCheckboxErrorsFunc"
+                  @input="$v.signUpCheckbox.$touch()"
+                  @blur="$v.signUpCheckbox.$touch()"
                 ></v-checkbox>
               </v-card-text>
               <v-card-actions>
@@ -186,6 +209,10 @@
                   outlined
                   required
                   dark
+                  :error-messages="signUpCaptchaErrorsFunc"
+                  :success-messages="signUpCaptchaSuccessFunc"
+                  @input="$v.signUpCaptcha.$touch()"
+                  @blur="$v.signUpCaptcha.$touch()"
                 >
                 </v-text-field>
               </v-card-text>
@@ -279,18 +306,54 @@
 <script>
 // 引入 validate
 import { validationMixin } from "vuelidate";
-import { required, minLength, email } from "vuelidate/lib/validators";
+import { required, minLength, maxLength, email, sameAs } from "vuelidate/lib/validators";
 // 引入 axios
 import axios from "axios";
 import Vue from "vue";
+
+// chinese phone number
+const isPhone = (value) => /^((13|14|15|17|18)[0-9]{1}\d{8})$/.test(value);
 
 export default {
   // 定義 validate
   mixins: [validationMixin],
 
   validations: {
+    // Sign In ------------------------
     signInEmail: { required, email },
     signInPassword: { required },
+    // Sign Up ------------------------
+    signUpUsername: {
+      required,
+      maxLength: maxLength(20),
+    },
+    signUpEmail: {
+      required,
+      email,
+    },
+    signUpPhone: {
+      required,
+      phoneValid: isPhone,
+    },
+    signUpPassword: { required, minLength: minLength(6) },
+    signUpRepeatPassword: {
+      required,
+      sameAsPassword: sameAs("signUpPassword"),
+    },
+
+    signUpCheckbox: {
+      checked(val) {
+        return val;
+      },
+    },
+    signUpCaptcha: {
+      required,
+    },
+    // forgot ppassword
+    forgotEmail: {
+      required,
+      email,
+    },
   },
   // --------------------------------------------
   data: () => ({
@@ -319,11 +382,22 @@ export default {
     // Sign In -------------
     signInEmailError: true,
     signInPasswordError: true,
-
+    // Sign Up ------------
+    signUpUsernameError: true,
+    signUpEmailError: true,
+    signUpPhoneError: true,
+    signUpPasswordError: true,
+    signUpRepeatPasswordError: true,
+    signUpCheckboxError: true,
     // request URL
     // Sign In -------------
     requestAutoSignInURL: "http://localhost:5000/user/auto_login",
     requestSignInURL: "http://localhost:5000/user/login",
+    // Sign Up ----------
+    requestSignUpURL: "http://localhost:5000/user/register",
+    requestValidateEmailURL: "http://localhost:5000/user/validateEmail",
+    // Forgot Password ----
+    requestForgotPasswordURL: "http://localhost:5000/user/forgotPassword",
   }),
   methods: {
     // -----------------------------------------------
@@ -387,6 +461,109 @@ export default {
         console.log("signInPasswordSuccess");
       }
     },
+    // Sign Up ------------------
+    
+    signUpUsernameErrorsFunc() {
+      const errors = [];
+      if (!this.$v.signUpUsername.$dirty) return errors;
+      !this.$v.signUpUsername.maxLength &&
+        errors.push("Username must be at most 20 characters long.");
+      !this.$v.signUpUsername.required && errors.push("Username is required.");
+      this.signUpUsernameError = true;
+      return errors;
+    },
+    signUpEmailErrorsFunc() {
+      const errors = [];
+      if (!this.$v.signUpEmail.$dirty) return errors;
+      !this.$v.signUpEmail.email && errors.push("Must be valid e-mail.");
+      !this.$v.signUpEmail.required && errors.push("E-mail is required.");
+      this.signUpEmailError = true;
+      return errors;
+    },
+    signUpPhoneErrorsFunc() {
+      const errors = [];
+      if (!this.$v.signUpPhone.$dirty) return errors;
+      !this.$v.signUpPhone.phoneValid && errors.push("Must be valid phone number.");
+      !this.$v.signUpPhone.required && errors.push("Phone number is required.");
+      this.signUpPhoneError = true;
+      return errors;
+    },
+    signUpPasswordErrorsFunc() {
+      const errors = [];
+      if (!this.$v.signUpPassword.$dirty) return errors;
+      !this.$v.signUpPassword.minLength &&
+        errors.push("Password must have at least 6 letters.");
+      !this.$v.signUpPassword.required && errors.push("Password is required.");
+      this.signUpPasswordError = true;
+      return errors;
+    },
+    signUpRepeatPasswordErrorsFunc() {
+      const errors = [];
+      if (!this.$v.signUpRepeatPassword.$dirty) return errors;
+      !this.$v.signUpRepeatPassword.sameAsPassword &&
+        errors.push("Password must be identical.");
+      !this.$v.signUpRepeatPassword.required &&
+        errors.push("Password must be identical.");
+      this.signUpRepeatPasswordError = true;
+      return errors;
+    },
+    signUpCaptchaErrorsFunc() {
+      const errors = [];
+      if (!this.$v.signUpCaptcha.$dirty) return errors;
+      !this.$v.signUpCaptcha.required && errors.push("captcha is required.");
+      this.signUpCaptchaError = true;
+      return errors;
+    },
+    signUpCheckboxErrorsFunc() {
+      const errors = [];
+      if (!this.$v.signUpCheckbox.$dirty) return errors;
+      !this.$v.signUpCheckbox.checked && errors.push("You must accept to continue!");
+      return errors;
+    },
+    signUpUsernameSuccessFunc() {
+      if (this.signUpUsername !== "" && this.$v.signUpUsername.maxLength) {
+        this.signUpUsernameError = false;
+        console.log("signUpUsernameSuccess");
+        return "Username is OK.";
+      }
+    },
+    signUpEmailSuccessFunc() {
+      if (this.signUpEmail !== "" && this.$v.signUpEmail.email) {
+        this.signUpEmailError = false;
+        console.log("emailSuccess");
+        return "E-mail is OK.";
+      }
+    },
+    signUpPhoneSuccessFunc() {
+      if (this.signUpPhone !== "" && this.$v.signUpPhone.phoneValid) {
+        this.signUpPhoneError = false;
+        console.log("phoneSuccess");
+        return "Phone number is OK.";
+      }
+    },
+    signUpPasswordSuccessFunc() {
+      if (this.signUpPassword !== "" && this.$v.signUpPassword.minLength) {
+        this.signUpPasswordError = false;
+        console.log("passwordSuccess");
+        return "Password is OK.";
+      }
+    },
+    signUpRepeatPasswordSuccessFunc() {
+      if (this.signUpRepeatPassword !== "" && this.$v.signUpRepeatPassword.sameAsPassword) {
+        this.signUpRepeatPasswordError = false;
+        console.log("repeatPasswordSuccess");
+        return "Repeat is OK.";
+      }
+    },
+    signUpCaptchaSuccessFunc() {
+      if (
+        this.signUpCaptcha !== ""
+      ) {
+        this.signUpCaptchaError = false;
+        console.log("captchaSuccess");
+        return "Captcha is OK.";
+      }
+    }
   },
 };
 </script>
