@@ -407,6 +407,7 @@ export default {
     signUpPasswordError: true,
     signUpRepeatPasswordError: true,
     signUpCheckboxError: true,
+    signUpCaptchaError: true,
     // forgot password -------
     forgotEmailError: true,
     // request URL
@@ -427,7 +428,7 @@ export default {
     signInMsg: "",
     signUpMsg: "",
     signUpValidateEmailMsg: "",
-
+    forgotMsg: "",
   }),
   methods: {
     // -----------------------------------------------
@@ -479,8 +480,8 @@ export default {
             // 登入失敗
             this.signInSuccess = false;
             // 去除 localstorage 的 token 和 user_id
-            Vue.localStorage.remove('jwt_token')
-            Vue.localStorage.remove('user_id')
+            Vue.localStorage.remove("jwt_token");
+            Vue.localStorage.remove("user_id");
           }
         })
         .catch((error) => {
@@ -505,11 +506,11 @@ export default {
           })
           .then((response) => {
             console.log(response.data);
-            if(response.data.data) {
+            if (response.data.data) {
               // 登入成功
               // 將 token 和 user_id 存到 localstorage
-              Vue.localStorage.set('jwt_token', response.data.jwt_token)
-              Vue.localStorage.set('user_id', response.data.user_id)
+              Vue.localStorage.set("jwt_token", response.data.jwt_token);
+              Vue.localStorage.set("user_id", response.data.user_id);
             } else {
               // 登入失敗
               this.signInSuccess = false;
@@ -523,75 +524,57 @@ export default {
     },
     SignUpRequest() {
       if (
-        this.nameError === false &&
-        this.emailError === false &&
-        this.passwordError === false &&
-        this.checkbox === true
+        this.signUpUsernameError === false &&
+        this.signUpEmailError === false &&
+        this.signUpPhoneError === false &&
+        this.signUpPasswordError === false &&
+        this.signUpRepeatPasswordError === false &&
+        this.signUpCheckbox === true
       ) {
-        // submit the login request
+        // submit the sign up request
 
         let data = new FormData();
-        data.append("username", this.name);
-        data.append("email", this.email);
-        data.append("password", this.password);
+        data.append("username", this.signUpUsername);
+        data.append("email", this.signUpEmail);
+        data.append("phone", this.signUpPhone);
+        data.append("password", this.signUpPassword);
         axios
-          .post(this.loginURL, data, {
+          .post(this.requestSignUpURL, data, {
             headers: { "Content-Type": "form-data" },
             transformRequest: [(data, headers) => data], //預設值，不做任何轉換
           })
           .then((response) => {
-            console.log(response);
             console.log(response.data);
-            this.loginSuccess = response.data.data;
-            this.openDialog = false;
-            if (this.loginSuccess) {
-              this.dialog = true;
+            if (response.data.data) {
+            } else {
+              this.signUpMsg = response.data.message;
             }
           })
           .catch((error) => {
             console.log(error);
-
-            this.openDialog = false;
-            if (this.loginSuccess) {
-              this.dialog = true;
-            }
           });
       }
     },
     ValidateEmailRequest() {
-      if (
-        this.nameError === false &&
-        this.emailError === false &&
-        this.passwordError === false &&
-        this.checkbox === true
-      ) {
-        // submit the login request
+      if (this.signUpCaptchaError === false) {
+        // submit the captcha request
 
         let data = new FormData();
-        data.append("username", this.name);
-        data.append("email", this.email);
-        data.append("password", this.password);
+        data.append("captcha", this.signUpCaptcha);
         axios
-          .post(this.loginURL, data, {
+          .post(this.requestValidateEmailURL, data, {
             headers: { "Content-Type": "form-data" },
             transformRequest: [(data, headers) => data], //預設值，不做任何轉換
           })
           .then((response) => {
-            console.log(response);
             console.log(response.data);
-            this.loginSuccess = response.data.data;
-            this.openDialog = false;
-            if (this.loginSuccess) {
-              this.dialog = true;
+            if (response.data.data) {
+            } else {
+              this.signUpValidateEmailMsg = response.data.message;
             }
           })
           .catch((error) => {
             console.log(error);
-
-            this.openDialog = false;
-            if (this.loginSuccess) {
-              this.dialog = true;
-            }
           });
       }
     },
