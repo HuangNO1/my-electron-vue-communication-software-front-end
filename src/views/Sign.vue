@@ -289,7 +289,7 @@ export default {
   mixins: [validationMixin],
 
   validations: {
-    signInEmail: { required },
+    signInEmail: { required, email },
     signInPassword: { required },
   },
   // --------------------------------------------
@@ -318,7 +318,7 @@ export default {
     // many enter Errors
     // Sign In -------------
     signInEmailError: true,
-    signInPassword: true,
+    signInPasswordError: true,
 
     // request URL
     // Sign In -------------
@@ -363,6 +363,7 @@ export default {
     signInEmailErrorsFunc() {
       const errors = [];
       if (!this.$v.signInEmail.$dirty) return errors;
+      !this.$v.signInEmail.email && errors.push("Must be valid e-mail.");
       !this.$v.signInEmail.required && errors.push("E-mail is required.");
       this.signInEmailError = true;
       return errors;
@@ -375,7 +376,7 @@ export default {
       return errors;
     },
     signInEmailSuccessFunc() {
-      if (this.signInEmail !== "") {
+      if (this.signInEmail !== "" && this.$v.signInEmail.email) {
         this.signInEmailError = false;
         console.log("signInEmailSuccess");
       }
