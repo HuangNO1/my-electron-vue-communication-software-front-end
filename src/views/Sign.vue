@@ -33,6 +33,10 @@
                   outlined
                   required
                   dark
+                  :error-messages="signInEmailErrorsFunc"
+                  :success-messages="signInEmailSuccessFunc"
+                  @input="$v.signInEmail.$touch()"
+                  @blur="$v.signInEmail.$touch()"
                 >
                   <v-icon slot="prepend" color="white">mdi-email</v-icon>
                 </v-text-field>
@@ -44,6 +48,10 @@
                   outlined
                   required
                   dark
+                  :error-messages="signInPasswordErrorsFunc"
+                  :success-messages="signInPasswordSuccessFunc"
+                  @input="$v.signInPassword.$touch()"
+                  @blur="$v.signInPassword.$touch()"
                 >
                   <v-icon slot="prepend" color="white">mdi-lock</v-icon>
                   <v-icon slot="append" color="red" @click="signInEyeClick">
@@ -201,7 +209,7 @@
                 <p class="white--text">You sign up successfully.</p>
               </v-card-text>
               <v-card-actions>
-                <v-btn block x-large color="teal" @click="step=1"
+                <v-btn block x-large color="teal" @click="step = 1"
                   >Sign In
                 </v-btn>
               </v-card-actions>
@@ -226,7 +234,9 @@
                   <v-icon slot="prepend" color="white">mdi-email</v-icon>
                 </v-text-field>
               </v-card-text>
-              <v-btn block x-large color="error" class="mb-4">Get New Password </v-btn>
+              <v-btn block x-large color="error" class="mb-4"
+                >Get New Password
+              </v-btn>
               <v-btn block x-large color="indigo" @click="step = 1"
                 >Sign In
               </v-btn>
@@ -267,7 +277,22 @@
 </template>
 
 <script>
+// 引入 validate
+import { validationMixin } from "vuelidate";
+import { required, minLength, email } from "vuelidate/lib/validators";
+// 引入 axios
+import axios from "axios";
+import Vue from "vue";
+
 export default {
+  // 定義 validate
+  mixins: [validationMixin],
+
+  validations: {
+    signInEmail: { required },
+    signInPassword: { required },
+  },
+  // --------------------------------------------
   data: () => ({
     step: 1,
     icons: ["mdi-github", "mdi-telegram", "mdi-twitter"],
@@ -290,6 +315,15 @@ export default {
     signUpCaptcha: "",
     // Forgot Password
     forgotEmail: "",
+    // many enter Errors
+    // Sign In -------------
+    signInEmailError: true,
+    signInPassword: true,
+
+    // request URL
+    // Sign In -------------
+    requestAutoSignInURL: "http://localhost:5000/user/auto_login",
+    requestSignInURL: "http://localhost:5000/user/login",
   }),
   methods: {
     // -----------------------------------------------
@@ -324,14 +358,32 @@ export default {
     //----------------------------------------------
   },
   computed: {
-    currentTitle() {
-      switch (this.step) {
-        case 1:
-          return "Sign-up";
-        case 2:
-          return "Create a password";
-        default:
-          return "Account created";
+    // validate---------------
+    // Sign In --------------------
+    signInEmailErrorsFunc() {
+      const errors = [];
+      if (!this.$v.signInEmail.$dirty) return errors;
+      !this.$v.signInEmail.required && errors.push("E-mail is required.");
+      this.signInEmailError = true;
+      return errors;
+    },
+    signInPasswordErrorsFunc() {
+      const errors = [];
+      if (!this.$v.signInPassword.$dirty) return errors;
+      !this.$v.signInPassword.required && errors.push("Password is required.");
+      this.signInPasswordError = true;
+      return errors;
+    },
+    signInEmailSuccessFunc() {
+      if (this.signInEmail !== "") {
+        this.signInEmailError = false;
+        console.log("signInEmailSuccess");
+      }
+    },
+    signInPasswordSuccessFunc() {
+      if (this.signInPassword !== "") {
+        this.signInPasswordError = false;
+        console.log("signInPasswordSuccess");
       }
     },
   },
