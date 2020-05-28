@@ -580,38 +580,26 @@ export default {
     },
     ForgotPasswordRequest() {
       if (
-        this.nameError === false &&
-        this.emailError === false &&
-        this.passwordError === false &&
-        this.checkbox === true
+        forgotEmailError === false
       ) {
-        // submit the login request
+        // submit the forgot password request
 
         let data = new FormData();
-        data.append("username", this.name);
-        data.append("email", this.email);
-        data.append("password", this.password);
+        data.append("email", this.forgotEmail);
         axios
-          .post(this.loginURL, data, {
+          .post(this.requestForgotPasswordURL, data, {
             headers: { "Content-Type": "form-data" },
             transformRequest: [(data, headers) => data], //預設值，不做任何轉換
           })
           .then((response) => {
-            console.log(response);
             console.log(response.data);
-            this.loginSuccess = response.data.data;
-            this.openDialog = false;
-            if (this.loginSuccess) {
-              this.dialog = true;
+            if (response.data.data) {
+            } else {
+              this.forgotMsg = response.data.message;
             }
           })
           .catch((error) => {
             console.log(error);
-
-            this.openDialog = false;
-            if (this.loginSuccess) {
-              this.dialog = true;
-            }
           });
       }
     },
