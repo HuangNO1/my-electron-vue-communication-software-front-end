@@ -69,6 +69,9 @@
               <div class="white--text mt-5" style="text-align: center">
                 <p>Have no account? To <a @click="step++">sign up</a>.</p>
               </div>
+              <v-alert type="success">
+                I'm a success alert.
+              </v-alert>
             </v-window-item>
             <!-- Sign Up Part 1 -->
             <v-window-item :value="2">
@@ -268,7 +271,12 @@
               <v-btn block x-large color="error" class="mb-4"
                 >Get New Password
               </v-btn>
-              <v-btn class="white--text" block x-large color="indigo" @click="step = 1"
+              <v-btn
+                class="white--text"
+                block
+                x-large
+                color="indigo"
+                @click="step = 1"
                 >Sign In
               </v-btn>
             </v-window-item>
@@ -310,7 +318,13 @@
 <script>
 // 引入 validate
 import { validationMixin } from "vuelidate";
-import { required, minLength, maxLength, email, sameAs } from "vuelidate/lib/validators";
+import {
+  required,
+  minLength,
+  maxLength,
+  email,
+  sameAs,
+} from "vuelidate/lib/validators";
 // 引入 axios
 import axios from "axios";
 import Vue from "vue";
@@ -404,6 +418,16 @@ export default {
     requestValidateEmailURL: "http://localhost:5000/user/validateEmail",
     // Forgot Password ----
     requestForgotPasswordURL: "http://localhost:5000/user/forgotPassword",
+    // adjust -----
+    signInSuccess: false,
+    signUpSuccess: false,
+    signUpValidateEmailSuccess: false,
+    forgotPasswordSuccess: false,
+    // response msg
+    signInMsg: "",
+    signUpMsg: "",
+    signUpValidateEmailMsg: "",
+
   }),
   methods: {
     // -----------------------------------------------
@@ -436,6 +460,178 @@ export default {
       }
     },
     //----------------------------------------------
+    // Sign In request
+    AutoSignInRequest() {
+      // submit the auto login request
+
+      let jwt_token = Vue.localStorage.get("jwt_token");
+      axios
+        .post(this.requestAutoSignInURL, {
+          headers: { "Content-Type": "form-data", Authorization: jwt_token },
+          transformRequest: [(headers) => data], //預設值，不做任何轉換
+        })
+        .then((response) => {
+          console.log(response.data);
+          if (response.data.data) {
+            // 登入成功
+            document.location.href = "/main";
+          } else {
+            // 登入失敗
+            this.signInSuccess = false;
+            // 去除 localstorage 的 token 和 user_id
+            Vue.localStorage.remove('jwt_token')
+            Vue.localStorage.remove('user_id')
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
+    SignInRequest() {
+      if (
+        this.signInEmailError === false &&
+        this.signInPasswordError === false
+      ) {
+        // submit the sign in request
+
+        let data = new FormData();
+        data.append("email", this.signInEmail);
+        data.append("password", this.signInPassword);
+        axios
+          .post(this.requestSignInURL, data, {
+            headers: { "Content-Type": "form-data" },
+            transformRequest: [(data, headers) => data], //預設值，不做任何轉換
+          })
+          .then((response) => {
+            console.log(response.data);
+            if(response.data.data) {
+              // 登入成功
+              // 將 token 和 user_id 存到 localstorage
+              Vue.localStorage.set('jwt_token', response.data.jwt_token)
+              Vue.localStorage.set('user_id', response.data.user_id)
+            } else {
+              // 登入失敗
+              this.signInSuccess = false;
+              this.signInMsg = response.data.message;
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+    },
+    SignUpRequest() {
+      if (
+        this.nameError === false &&
+        this.emailError === false &&
+        this.passwordError === false &&
+        this.checkbox === true
+      ) {
+        // submit the login request
+
+        let data = new FormData();
+        data.append("username", this.name);
+        data.append("email", this.email);
+        data.append("password", this.password);
+        axios
+          .post(this.loginURL, data, {
+            headers: { "Content-Type": "form-data" },
+            transformRequest: [(data, headers) => data], //預設值，不做任何轉換
+          })
+          .then((response) => {
+            console.log(response);
+            console.log(response.data);
+            this.loginSuccess = response.data.data;
+            this.openDialog = false;
+            if (this.loginSuccess) {
+              this.dialog = true;
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+
+            this.openDialog = false;
+            if (this.loginSuccess) {
+              this.dialog = true;
+            }
+          });
+      }
+    },
+    ValidateEmailRequest() {
+      if (
+        this.nameError === false &&
+        this.emailError === false &&
+        this.passwordError === false &&
+        this.checkbox === true
+      ) {
+        // submit the login request
+
+        let data = new FormData();
+        data.append("username", this.name);
+        data.append("email", this.email);
+        data.append("password", this.password);
+        axios
+          .post(this.loginURL, data, {
+            headers: { "Content-Type": "form-data" },
+            transformRequest: [(data, headers) => data], //預設值，不做任何轉換
+          })
+          .then((response) => {
+            console.log(response);
+            console.log(response.data);
+            this.loginSuccess = response.data.data;
+            this.openDialog = false;
+            if (this.loginSuccess) {
+              this.dialog = true;
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+
+            this.openDialog = false;
+            if (this.loginSuccess) {
+              this.dialog = true;
+            }
+          });
+      }
+    },
+    ForgotPasswordRequest() {
+      if (
+        this.nameError === false &&
+        this.emailError === false &&
+        this.passwordError === false &&
+        this.checkbox === true
+      ) {
+        // submit the login request
+
+        let data = new FormData();
+        data.append("username", this.name);
+        data.append("email", this.email);
+        data.append("password", this.password);
+        axios
+          .post(this.loginURL, data, {
+            headers: { "Content-Type": "form-data" },
+            transformRequest: [(data, headers) => data], //預設值，不做任何轉換
+          })
+          .then((response) => {
+            console.log(response);
+            console.log(response.data);
+            this.loginSuccess = response.data.data;
+            this.openDialog = false;
+            if (this.loginSuccess) {
+              this.dialog = true;
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+
+            this.openDialog = false;
+            if (this.loginSuccess) {
+              this.dialog = true;
+            }
+          });
+      }
+    },
   },
   computed: {
     // validate---------------
@@ -468,7 +664,7 @@ export default {
       }
     },
     // Sign Up ------------------
-    
+
     signUpUsernameErrorsFunc() {
       const errors = [];
       if (!this.$v.signUpUsername.$dirty) return errors;
@@ -489,7 +685,8 @@ export default {
     signUpPhoneErrorsFunc() {
       const errors = [];
       if (!this.$v.signUpPhone.$dirty) return errors;
-      !this.$v.signUpPhone.phoneValid && errors.push("Must be valid phone number.");
+      !this.$v.signUpPhone.phoneValid &&
+        errors.push("Must be valid phone number.");
       !this.$v.signUpPhone.required && errors.push("Phone number is required.");
       this.signUpPhoneError = true;
       return errors;
@@ -523,7 +720,8 @@ export default {
     signUpCheckboxErrorsFunc() {
       const errors = [];
       if (!this.$v.signUpCheckbox.$dirty) return errors;
-      !this.$v.signUpCheckbox.checked && errors.push("You must accept to continue!");
+      !this.$v.signUpCheckbox.checked &&
+        errors.push("You must accept to continue!");
       return errors;
     },
     signUpUsernameSuccessFunc() {
@@ -555,16 +753,17 @@ export default {
       }
     },
     signUpRepeatPasswordSuccessFunc() {
-      if (this.signUpRepeatPassword !== "" && this.$v.signUpRepeatPassword.sameAsPassword) {
+      if (
+        this.signUpRepeatPassword !== "" &&
+        this.$v.signUpRepeatPassword.sameAsPassword
+      ) {
         this.signUpRepeatPasswordError = false;
         console.log("repeatPasswordSuccess");
         return "Repeat is OK.";
       }
     },
     signUpCaptchaSuccessFunc() {
-      if (
-        this.signUpCaptcha !== ""
-      ) {
+      if (this.signUpCaptcha !== "") {
         this.signUpCaptchaError = false;
         console.log("captchaSuccess");
         return "Captcha is OK.";
