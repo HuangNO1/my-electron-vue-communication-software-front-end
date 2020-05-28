@@ -184,7 +184,7 @@
                   required
                   dark
                   :error-messages="signUpCheckboxErrorsFunc"
-                  @input="$v.signUpCheckbox.$touch()"
+                  @change="$v.signUpCheckbox.$touch()"
                   @blur="$v.signUpCheckbox.$touch()"
                 ></v-checkbox>
               </v-card-text>
@@ -257,6 +257,10 @@
                   outlined
                   required
                   dark
+                  :error-messages="forgotEmailErrorsFunc"
+                  :success-messages="forgotEmailSuccessFunc"
+                  @input="$v.forgotEmail.$touch()"
+                  @blur="$v.forgotEmail.$touch()"
                 >
                   <v-icon slot="prepend" color="white">mdi-email</v-icon>
                 </v-text-field>
@@ -264,7 +268,7 @@
               <v-btn block x-large color="error" class="mb-4"
                 >Get New Password
               </v-btn>
-              <v-btn block x-large color="indigo" @click="step = 1"
+              <v-btn class="white--text" block x-large color="indigo" @click="step = 1"
                 >Sign In
               </v-btn>
             </v-window-item>
@@ -389,6 +393,8 @@ export default {
     signUpPasswordError: true,
     signUpRepeatPasswordError: true,
     signUpCheckboxError: true,
+    // forgot password -------
+    forgotEmailError: true,
     // request URL
     // Sign In -------------
     requestAutoSignInURL: "http://localhost:5000/user/auto_login",
@@ -563,7 +569,22 @@ export default {
         console.log("captchaSuccess");
         return "Captcha is OK.";
       }
-    }
+    },
+    // Forgot Password ---------------------
+    forgotEmailErrorsFunc() {
+      const errors = [];
+      if (!this.$v.forgotEmail.$dirty) return errors;
+      !this.$v.forgotEmail.email && errors.push("Must be valid e-mail.");
+      !this.$v.forgotEmail.required && errors.push("E-mail is required.");
+      this.forgotEmailError = true;
+      return errors;
+    },
+    forgotEmailSuccessFunc() {
+      if (this.forgotEmail !== "" && this.$v.forgotEmail.email) {
+        this.forgotEmailError = false;
+        console.log("forgotEmailSuccess");
+      }
+    },
   },
 };
 </script>
