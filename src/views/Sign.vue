@@ -64,14 +64,13 @@
               </v-card-text>
 
               <v-card-actions>
-                <v-btn block x-large color="primary" to="main">Sign In</v-btn>
+                <v-btn block x-large color="primary" @click="SignInRequest"
+                  >Sign In</v-btn
+                >
               </v-card-actions>
               <div class="white--text mt-5" style="text-align: center">
                 <p>Have no account? To <a @click="step++">sign up</a>.</p>
               </div>
-              <v-alert type="success">
-                I'm a success alert.
-              </v-alert>
             </v-window-item>
             <!-- Sign Up Part 1 -->
             <v-window-item :value="2">
@@ -192,7 +191,7 @@
                 ></v-checkbox>
               </v-card-text>
               <v-card-actions>
-                <v-btn block x-large color="warning" @click="step++"
+                <v-btn block x-large color="warning" @click="SignUpRequest"
                   >Sign Up</v-btn
                 >
               </v-card-actions>
@@ -220,7 +219,7 @@
                 </v-text-field>
               </v-card-text>
               <v-card-actions>
-                <v-btn block x-large color="error" @click="step++"
+                <v-btn block x-large color="error" @click="ValidateEmailRequest"
                   >VERIFY</v-btn
                 >
               </v-card-actions>
@@ -268,7 +267,12 @@
                   <v-icon slot="prepend" color="white">mdi-email</v-icon>
                 </v-text-field>
               </v-card-text>
-              <v-btn block x-large color="error" class="mb-4"
+              <v-btn
+                block
+                x-large
+                color="error"
+                class="mb-4"
+                @click="ForgotPasswordRequest"
                 >Get New Password
               </v-btn>
               <v-btn
@@ -283,6 +287,20 @@
           </v-window>
         </v-card>
       </v-container>
+      <v-dialog v-model="alertDialog" dark max-width="290">
+        <v-card>
+          <v-card-text class="pt-4">
+            {{showAlertDialogMsg}}
+          </v-card-text>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="green darken-1" text @click="alertDialog = false">
+              Got it
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-content>
     <v-footer dark fixed padless>
       <v-card
@@ -374,6 +392,10 @@ export default {
     },
   },
   // --------------------------------------------
+  created() {
+    // 自動登入
+    this.AutoSignInRequest();
+  },
   data: () => ({
     step: 1,
     icons: ["mdi-github", "mdi-telegram", "mdi-twitter"],
@@ -429,6 +451,9 @@ export default {
     signUpMsg: "",
     signUpValidateEmailMsg: "",
     forgotMsg: "",
+    // alert dialog
+    alertDialog: false,
+    showAlertDialogMsg: ""
   }),
   methods: {
     // -----------------------------------------------
@@ -466,9 +491,11 @@ export default {
       // submit the auto login request
 
       let jwt_token = Vue.localStorage.get("jwt_token");
+      console.log(jwt_token)
+      let data = new FormData();
       axios
-        .post(this.requestAutoSignInURL, {
-          headers: { "Content-Type": "form-data", Authorization: jwt_token },
+        .post(this.requestAutoSignInURL, data, {
+          headers: { "Content-Type": "form-data", Authorization: `Bearer ${jwt_token}` },
           transformRequest: [(headers) => data], //預設值，不做任何轉換
         })
         .then((response) => {
@@ -511,10 +538,15 @@ export default {
               // 將 token 和 user_id 存到 localstorage
               Vue.localStorage.set("jwt_token", response.data.jwt_token);
               Vue.localStorage.set("user_id", response.data.user_id);
+              // 登入成功
+              document.location.href = "/main";
             } else {
               // 登入失敗
               this.signInSuccess = false;
               this.signInMsg = response.data.message;
+              // open dialog
+              this.showAlertDialogMsg = this.signInMsg;
+              this.alertDialog = true;
             }
           })
           .catch((error) => {
@@ -546,8 +578,17 @@ export default {
           .then((response) => {
             console.log(response.data);
             if (response.data.data) {
+              // open dialog
+              this.signUpMsg = response.data.message;
+              this.showAlertDialogMsg = this.signUpMsg;
+              this.alertDialog = true;
+              // step ++
+              this.step += 1;
             } else {
               this.signUpMsg = response.data.message;
+              // open dialog
+              this.showAlertDialogMsg = this.signUpMsg;
+              this.alertDialog = true;
             }
           })
           .catch((error) => {
@@ -569,8 +610,17 @@ export default {
           .then((response) => {
             console.log(response.data);
             if (response.data.data) {
+              this.signUpValidateEmailMsg = response.data.message;
+              // open dialog
+              this.showAlertDialogMsg = this.signUpValidateEmailMsg;
+              this.alertDialog = true;
+              // step ++
+              this.step += 1;
             } else {
               this.signUpValidateEmailMsg = response.data.message;
+              this.showAlertDialogMsg = this.signUpValidateEmailMsg;
+              // open dialog
+              this.alertDialog = true;
             }
           })
           .catch((error) => {
@@ -579,9 +629,7 @@ export default {
       }
     },
     ForgotPasswordRequest() {
-      if (
-        forgotEmailError === false
-      ) {
+      if (this.forgotEmailError === false) {
         // submit the forgot password request
 
         let data = new FormData();
@@ -594,8 +642,15 @@ export default {
           .then((response) => {
             console.log(response.data);
             if (response.data.data) {
+              // open dialog
+              this.forgotMsg = response.data.message;
+              this.showAlertDialogMsg = this.forgotMsg;
+              this.alertDialog = true;
             } else {
               this.forgotMsg = response.data.message;
+              // open dialog
+              this.showAlertDialogMsg = this.forgotMsg;
+              this.alertDialog = true;
             }
           })
           .catch((error) => {
