@@ -201,42 +201,7 @@ export default {
     VueResizable,
   },
   created() {
-    this.showChannels = [];
-    let jwt_token = Vue.localStorage.get("jwt_token");
-    let UserID = Vue.localStorage.get("user_id");
-    let data = new FormData();
-    data.append("id", UserID);
-    axios
-      .post(this.requestGetAllChannelsURL, data, {
-        headers: {
-          "Content-Type": "form-data",
-          Authorization: `Bearer ${jwt_token}`,
-        },
-        transformRequest: [(headers) => data], //預設值，不做任何轉換
-      })
-      .then((response) => {
-        console.log(response.data);
-        if (response.data.data === undefined) {
-          // token 失效
-          // 移除 token 和 id
-          Vue.localStorage.remove("jwt_token");
-          Vue.localStorage.remove("user_id");
-          // 重新登入
-          document.location.href = "/sign";
-        } else if (response.data.data) {
-          // 有找到數據
-          this.showChannels = response.data.searchResult;
-          // 推入 VueX
-          this.$store.commit(UPDATE_ALL_CHANNELS, response.data.searchResult);
-          console.log(this.showChannels);
-          console.log(response.data.searchResult);
-        } else {
-          // 沒找到數據
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    this.getAllChannels();
   },
   data() {
     return {
@@ -255,16 +220,102 @@ export default {
       channelItems: [],
       showChannels: [],
       searchChannelKeyword: "",
-      // request url
+      // request url -------------------------------
       // 返回使用者所有加入的 Channel
       requestGetAllChannelsURL:
         "http://localhost:5000/user/channels/getAllChannels",
+      // 返回某一 Channel 所有的 Message
+      requestGetChannelAllMessagesURL:
+        "http://localhost:5000/user/channels/getAllMessages",
       // 模糊搜索 所有 channelType 是 group 的群
       requestSearchChannelsURL:
         "http://localhost:5000/user/channels/searchChannels",
       // 模糊搜索使用者
       requestSearchUsersURL: "http://localhost:5000/user/searchUsers",
     };
+  },
+  methods: {
+    // 異步請求
+    async getAllChannels() {
+      // 初始化
+      this.showChannels = [];
+      let jwt_token = Vue.localStorage.get("jwt_token");
+      let UserID = Vue.localStorage.get("user_id");
+      let data = new FormData();
+      data.append("id", UserID);
+      axios
+        .post(this.requestGetAllChannelsURL, data, {
+          headers: {
+            "Content-Type": "form-data",
+            Authorization: `Bearer ${jwt_token}`,
+          },
+          transformRequest: [(headers) => data], //預設值，不做任何轉換
+        })
+        .then((response) => {
+          console.log(response.data);
+          if (response.data.data === undefined) {
+            // token 失效
+            // 移除 token 和 id
+            Vue.localStorage.remove("jwt_token");
+            Vue.localStorage.remove("user_id");
+            // 重新登入
+            document.location.href = "/sign";
+          } else if (response.data.data) {
+            // 有找到數據
+            this.showChannels = response.data.searchResult;
+            // 推入 VueX
+            this.$store.commit(UPDATE_ALL_CHANNELS, response.data.searchResult);
+            console.log(this.showChannels);
+            console.log(response.data.searchResult);
+            // 請求 channel 的 message 並存入 VueX
+            for(let i = 0; i < this.showChannels.length; i++) {
+              this.getAllMessage(this.shoeChannels[i].id);
+            }
+          } else {
+            // 沒找到數據
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    async getAllMessage(channelID) {
+      // 得到所有的 Message
+      
+      let jwt_token = Vue.localStorage.get("jwt_token");
+      let data = new FormData();
+      data.append("id", channelID);
+      axios
+        .post(this.requestGetChannelAllMessagesURL, data, {
+          headers: {
+            "Content-Type": "form-data",
+            Authorization: `Bearer ${jwt_token}`,
+          },
+          transformRequest: [(headers) => data], //預設值，不做任何轉換
+        })
+        .then((response) => {
+          console.log(response.data);
+          if (response.data.data === undefined) {
+            // token 失效
+            // 移除 token 和 id
+            Vue.localStorage.remove("jwt_token");
+            Vue.localStorage.remove("user_id");
+            // 重新登入
+            document.location.href = "/sign";
+          } else if (response.data.data) {
+            // 有找到數據
+            // 推入 VueX
+            this.$store.commit(UPDATE_ALL_MESSAGE, response.data.searchResult);
+            console.log(response.data.searchResult);
+            console.log(this.allMessages);
+          } else {
+            // 沒找到數據
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
   },
   watch: {
     searchChannelKeyword: function() {
@@ -317,6 +368,9 @@ export default {
       allChannels: (state) => {
         return state.channel.channels;
       },
+      allMessages: (state) => {
+        return state.message.messages;
+      }
     }),
   },
 };

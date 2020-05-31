@@ -10,10 +10,16 @@ const friend = {
     },
     mutations: {
         [UPDATE_ALL_MESSAGE](state, messages) {
-            state.messages = messages;
+            state.messages.push(messages);
         },
         [ADD_A_MESSAGE](state, item) {
-            state.messages.push(item)
+            // 遍歷所有 Message
+            for (let i = 0; i < state.messages.length; i++) {
+                // 如果 toId 一樣 推進去
+                if (state.messages[i][0].toId === item.toId) {
+                    state.messages[i].push(item);
+                }
+            }
         }
     },
     actions: {},
