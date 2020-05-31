@@ -262,14 +262,14 @@ export default {
             document.location.href = "/sign";
           } else if (response.data.data) {
             // 有找到數據
-            this.showChannels = response.data.searchResult;
+            this.showChannels = response.data.channels;
             // 推入 VueX
-            this.$store.commit(UPDATE_ALL_CHANNELS, response.data.searchResult);
+            this.$store.commit(UPDATE_ALL_CHANNELS, response.data.channels);
             console.log(this.showChannels);
-            console.log(response.data.searchResult);
+            console.log(response.data.channels);
             // 請求 channel 的 message 並存入 VueX
             for(let i = 0; i < this.showChannels.length; i++) {
-              this.getAllMessage(this.shoeChannels[i].id);
+              this.getAllMessage(this.showChannels[i].id);
             }
           } else {
             // 沒找到數據
