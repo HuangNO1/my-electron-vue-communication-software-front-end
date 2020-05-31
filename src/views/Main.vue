@@ -59,7 +59,12 @@
       <v-divider></v-divider>
 
       <v-list>
-        <v-list-item v-for="(item, i) in settingItems" :key="i" link>
+        <v-list-item
+          @click="clickSettings(item)"
+          v-for="(item, i) in settingItems"
+          :key="i"
+          link
+        >
           <v-list-item-icon>
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-item-icon>
@@ -147,8 +152,31 @@
           <Chat></Chat>
         </v-col>
       </v-row>
+      <!-- 新建新群的 Dialog -->
+      <v-dialog v-model="createNewChannelDialog" persistent dark scrollable max-width="290">
+        <v-card>
+          <v-card-title class="headline"
+            >Create New Group</v-card-title
+          >
 
-      <!--<v-container id="cnt" fluid> </v-container>-->
+          <v-card-text>
+            Let Google help apps determine location. This means sending
+            anonymous location data to Google, even when no apps are running.
+          </v-card-text>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+
+            <v-btn color="red darken-1" text @click="createNewChannelDialog = false">
+              Cancel
+            </v-btn>
+
+            <v-btn color="green darken-1" text @click="createNewChannelDialog = false">
+              Yes
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-content>
     <v-footer id="footer" dark fixed app padless>
       <v-textarea
@@ -213,13 +241,14 @@ export default {
       ],
       drawer: null,
       settingItems: [
-        { title: "Chat", icon: "mdi-forum" },
         { title: "New Group", icon: "mdi-account-multiple" },
         { title: "Logout", icon: "mdi-logout-variant" },
       ],
       channelItems: [],
       showChannels: [],
       searchChannelKeyword: "",
+      // 建群的 Dialog
+      createNewChannelDialog: false,
       // request url -------------------------------
       // 返回使用者所有加入的 Channel
       requestGetAllChannelsURL:
@@ -259,7 +288,7 @@ export default {
             Vue.localStorage.remove("jwt_token");
             Vue.localStorage.remove("user_id");
             // 重新登入
-            document.location.href = "/sign";
+            document.location.href = "/";
           } else if (response.data.data) {
             // 有找到數據
             this.showChannels = response.data.channels;
@@ -268,7 +297,7 @@ export default {
             console.log(this.showChannels);
             console.log(response.data.channels);
             // 請求 channel 的 message 並存入 VueX
-            for(let i = 0; i < this.showChannels.length; i++) {
+            for (let i = 0; i < this.showChannels.length; i++) {
               this.getAllMessage(this.showChannels[i].id);
             }
           } else {
@@ -281,7 +310,7 @@ export default {
     },
     async getAllMessage(channelID) {
       // 得到所有的 Message
-      
+
       let jwt_token = Vue.localStorage.get("jwt_token");
       let data = new FormData();
       data.append("id", channelID);
@@ -301,7 +330,7 @@ export default {
             Vue.localStorage.remove("jwt_token");
             Vue.localStorage.remove("user_id");
             // 重新登入
-            document.location.href = "/sign";
+            document.location.href = "/";
           } else if (response.data.data) {
             // 有找到數據
             // 推入 VueX
@@ -315,7 +344,24 @@ export default {
         .catch((error) => {
           console.log(error);
         });
-    }
+    },
+    clickSettings(item) {
+      if (item.title === "New Group") {
+        // 新建新的群聊
+        // 將設定欄關閉
+        this.drawer = !this.drawer;
+        this.createNewChannelDialog = true;
+      } else if (item.title === "Logout") {
+        // 登出
+        // 移除 token 和 id
+        // 將設定欄關閉
+        this.drawer = !this.drawer;
+        Vue.localStorage.remove("jwt_token");
+        Vue.localStorage.remove("user_id");
+        // 重新登入
+        document.location.href = "/";
+      }
+    },
   },
   watch: {
     searchChannelKeyword: function() {
@@ -346,7 +392,7 @@ export default {
               Vue.localStorage.remove("jwt_token");
               Vue.localStorage.remove("user_id");
               // 重新登入
-              document.location.href = "/sign";
+              document.location.href = "/";
             } else if (response.data.data) {
               // 有找到數據
               this.showChannels = response.data.searchResult;
@@ -370,7 +416,7 @@ export default {
       },
       allMessages: (state) => {
         return state.message.messages;
-      }
+      },
     }),
   },
 };
