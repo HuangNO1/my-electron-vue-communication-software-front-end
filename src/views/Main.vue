@@ -153,25 +153,50 @@
         </v-col>
       </v-row>
       <!-- 新建新群的 Dialog -->
-      <v-dialog v-model="createNewChannelDialog" persistent dark scrollable max-width="290">
+      <v-dialog
+        v-model="createNewChannelDialog"
+        persistent
+        dark
+        scrollable
+        max-width="500"
+      >
         <v-card>
-          <v-card-title class="headline"
-            >Create New Group</v-card-title
-          >
+          <v-card-title class="headline">Create New Group</v-card-title>
 
-          <v-card-text>
-            Let Google help apps determine location. This means sending
-            anonymous location data to Google, even when no apps are running.
+          <v-card-text class="pt-2">
+            <!-- channelName -->
+            <v-text-field
+              v-model="createNewChannelName"
+              :counter="20"
+              label="New Channel Name"
+              outlined
+              required
+              dark
+              :error-messages="createNewChannelNameErrorsFunc"
+              :success-messages="createNewChannelNameSuccessFunc"
+              @input="$v.createNewChannelName.$touch()"
+              @blur="$v.createNewChannelName.$touch()"
+            >
+              <v-icon slot="prepend" color="white">mdi-account-group</v-icon>
+            </v-text-field>
           </v-card-text>
 
           <v-card-actions>
             <v-spacer></v-spacer>
 
-            <v-btn color="red darken-1" text @click="createNewChannelDialog = false">
+            <v-btn
+              color="red darken-1"
+              text
+              @click="createNewChannelDialog = false"
+            >
               Cancel
             </v-btn>
 
-            <v-btn color="green darken-1" text @click="createNewChannelDialog = false">
+            <v-btn
+              color="green darken-1"
+              text
+              @click="createNewChannelDialog = false"
+            >
               Yes
             </v-btn>
           </v-card-actions>
@@ -222,8 +247,24 @@ import {
 } from "../store/mutations-types/message";
 // 引入 axios
 import axios from "axios";
+// 引入 validate
+import { validationMixin } from "vuelidate";
+import {
+  required,
+  maxLength,
+} from "vuelidate/lib/validators";
 
 export default {
+  // 定義 validate
+  mixins: [validationMixin],
+
+  validations: {
+    // createNewChannelName ------------------------
+    createNewChannelName: {
+      required,
+      maxLength: maxLength(20),
+    },
+  },
   components: {
     Chat,
     VueResizable,
@@ -241,7 +282,7 @@ export default {
       ],
       drawer: null,
       settingItems: [
-        { title: "New Group", icon: "mdi-account-multiple" },
+        { title: "New Group", icon: "mdi-account-group" },
         { title: "Logout", icon: "mdi-logout-variant" },
       ],
       channelItems: [],
@@ -249,6 +290,8 @@ export default {
       searchChannelKeyword: "",
       // 建群的 Dialog
       createNewChannelDialog: false,
+      createNewChannelName: "",
+      createNewChannelNameError: true,
       // request url -------------------------------
       // 返回使用者所有加入的 Channel
       requestGetAllChannelsURL:
@@ -418,6 +461,23 @@ export default {
         return state.message.messages;
       },
     }),
+    // validate---------------
+    createNewChannelNameErrorsFunc() {
+      const errors = [];
+      if (!this.$v.createNewChannelName.$dirty) return errors;
+      !this.$v.createNewChannelName.maxLength &&
+        errors.push("Channel Name must be at most 20 characters long.");
+      !this.$v.createNewChannelName.required && errors.push("Channel Name is required.");
+      this.createNewChannelNameError = true;
+      return errors;
+    },
+    createNewChannelNameSuccessFunc() {
+      if (this.createNewChannelName !== "" && this.$v.createNewChannelName.maxLength) {
+        this.createNewChannelName = false;
+        console.log("createNewChannelNameSuccess");
+        return "Channel name is OK.";
+      }
+    },
   },
 };
 </script>
