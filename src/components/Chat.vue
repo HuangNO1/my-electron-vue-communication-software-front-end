@@ -31,6 +31,27 @@
   </v-container>
 </template>
 <script>
+// 引入 VueX
+import { mapState, mapMutations } from "vuex";
+import {
+  UPDATE_ALL_CHANNELS,
+  CREATE_A_Channel,
+  DELETE_A_CHANNEL,
+  ADD_A_CHANNEL,
+  EXIT_A_CHANNEL,
+} from "../store/mutations-types/channel";
+import {
+  UPDATE_USER_USERNAME,
+  UPDATE_USER_EMAIL,
+  UPDATE_USER_PHONE,
+  UPDATE_ALL_USER_DATA,
+} from "../store/mutations-types/user";
+import { ADD_TO_FRIEND, DELETE_FRIEND } from "../store/mutations-types/friend";
+import {
+    UPDATE_ALL_MESSAGE,
+    ADD_A_MESSAGE
+} from '../store/mutations-types/message'
+
 export default {
   name: "Chat",
   data() {

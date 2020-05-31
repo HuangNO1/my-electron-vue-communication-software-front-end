@@ -71,7 +71,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-content>
+    <v-content style="height: 100%">
       <v-row style="padding: 0; margin: 0; height: 100%">
         <v-col
           xs="auto"
@@ -81,7 +81,7 @@
           xl="auto"
           style="padding: 0; margin: 0; "
         >
-          <div>
+          <div style="height: 100%">
             <vue-resizable
               :minWidth="200"
               :maxWidth="800"
@@ -100,6 +100,7 @@
 
                 <v-list-item>
                   <v-text-field
+                    v-model="searchChannelKeyword"
                     label="Solo"
                     placeholder="Search Channel"
                     solo
@@ -111,32 +112,29 @@
                   color="primary"
                 >
                   <v-list-item
-                    v-for="(item, i) in messageItems"
+                    v-for="(item, i) in showChannels"
                     :key="i"
                     @click=""
                     dark
                   >
                     <v-list-item-avatar>
-                      <v-icon
-                        :class="[item.iconClass]"
-                        v-text="item.icon"
-                      ></v-icon>
+                      <v-img src="https://avatars1.githubusercontent.com/u/11587044?s=460&v=4"></v-img>
                     </v-list-item-avatar>
 
                     <v-list-item-content>
                       <v-list-item-title
-                        v-text="item.title"
+                        v-text="item.channelName"
                       ></v-list-item-title>
                       <v-list-item-subtitle
-                        v-text="item.subtitle"
+                        v-text="item.channelType"
                       ></v-list-item-subtitle>
                     </v-list-item-content>
 
-                    <v-list-item-action>
+                    <!--<v-list-item-action>
                       <v-btn icon>
                         <v-icon color="grey lighten-1">mdi-information</v-icon>
                       </v-btn>
-                    </v-list-item-action>
+                    </v-list-item-action>-->
                   </v-list-item>
                 </v-list-item-group>
               </v-list>
@@ -169,14 +167,39 @@
   </div>
 </template>
 <script>
+import Vue from "vue";
 import VueResizable from "vue-resizable";
 import Chat from "../components/Chat";
+// 引入 VueX
+import { mapState, mapMutations } from "vuex";
+import {
+  UPDATE_ALL_CHANNELS,
+  CREATE_A_Channel,
+  DELETE_A_CHANNEL,
+  ADD_A_CHANNEL,
+  EXIT_A_CHANNEL,
+} from "../store/mutations-types/channel";
+import {
+  UPDATE_USER_USERNAME,
+  UPDATE_USER_EMAIL,
+  UPDATE_USER_PHONE,
+  UPDATE_ALL_USER_DATA,
+} from "../store/mutations-types/user";
+import { ADD_TO_FRIEND, DELETE_FRIEND } from "../store/mutations-types/friend";
+import {
+    UPDATE_ALL_MESSAGE,
+    ADD_A_MESSAGE
+} from '../store/mutations-types/message'
+// 引入 axios
+import axios from "axios";
+
 
 export default {
   components: {
     Chat,
     VueResizable,
   },
+  created() {},
   data() {
     return {
       selectItem: 0,
@@ -191,70 +214,73 @@ export default {
         { title: "New Group", icon: "mdi-account-multiple" },
         { title: "Logout", icon: "mdi-logout-variant" },
       ],
-      messageItems: [
-        {
-          icon: "folder",
-          iconClass: "grey lighten-1 white--text",
-          title: "Photos",
-          subtitle: "Jan 9, 2014",
-        },
-        {
-          icon: "folder",
-          iconClass: "grey lighten-1 white--text",
-          title: "Recipes",
-          subtitle: "Jan 17, 2014",
-        },
-        {
-          icon: "folder",
-          iconClass: "grey lighten-1 white--text",
-          title: "Work",
-          subtitle: "Jan 28, 2014",
-        },
-        {
-          icon: "folder",
-          iconClass: "grey lighten-1 white--text",
-          title: "Work",
-          subtitle: "Jan 28, 2014",
-        },
-        {
-          icon: "folder",
-          iconClass: "grey lighten-1 white--text",
-          title: "Work",
-          subtitle: "Jan 28, 2014",
-        },
-        {
-          icon: "folder",
-          iconClass: "grey lighten-1 white--text",
-          title: "Work",
-          subtitle: "Jan 28, 2014",
-        },
-        {
-          icon: "folder",
-          iconClass: "grey lighten-1 white--text",
-          title: "Work",
-          subtitle: "Jan 28, 2014",
-        },
-        {
-          icon: "folder",
-          iconClass: "grey lighten-1 white--text",
-          title: "Work",
-          subtitle: "Jan 28, 2014",
-        },
-        {
-          icon: "folder",
-          iconClass: "grey lighten-1 white--text",
-          title: "Work",
-          subtitle: "Jan 28, 2014",
-        },
-        {
-          icon: "folder",
-          iconClass: "grey lighten-1 white--text",
-          title: "Work",
-          subtitle: "Jan 28, 2014",
-        },
+      channelItems: [],
+      showChannels: [
+        // {
+        //   channelName: "AAA",
+        //   channelType: "gg"
+        // },
+        // {
+        //   channelName: "BBB",
+        //   channelType: "test"
+        // }
       ],
+      searchChannelKeyword: "",
+      // request url
+      // 返回使用者所有加入的 Channel
+      requestGetAllChannelsURL: "http://localhost:5000/user/channels/getAllChannels",
+      // 模糊搜索 所有 channelType 是 group 的群
+      requestSearchChannelsURL: "http://localhost:5000/user/channels/searchChannels",
+      // 模糊搜索使用者
+      requestSearchUsersURL: "http://localhost:5000/user/searchUsers"
+
     };
   },
+  watch: {
+    searchChannelKeyword: function() {
+      // 搜索 channel
+      // 初始化
+      this.showChannels = [];
+      let jwt_token = Vue.localStorage.get("jwt_token");
+      let data = new FormData();
+      data.append("keyword", this.searchChannelKeyword)
+      axios
+        .post(this.requestSearchChannelsURL, data, {
+          headers: { "Content-Type": "form-data", Authorization: `Bearer ${jwt_token}` },
+          transformRequest: [(headers) => data], //預設值，不做任何轉換
+        })
+        .then((response) => {
+          console.log(response.data);
+          if (response.data.data === undefined) {
+            // token 失效
+            // 移除 token 和 id
+            Vue.localStorage.remove("jwt_token");
+            Vue.localStorage.remove("user_id");
+            // 重新登入
+            document.location.href = "/sign";
+          } else if (response.data.data) {
+            // 有找到數據
+            // for(let i = 0 ; i < response.data.searchResult.length; i++) {
+            //   var temp = {
+            //     id: response.data.searchResult[i].id,
+            //     channelType: response.data.searchResult[i].channelType,
+            //     adminId: response.data.searchResult[i].adminId,
+            //     channelName: response.data.searchResult[i].channelName
+            //   }
+            //   this.showChannels.push(temp)
+            // }
+            this.showChannels = response.data.searchResult
+            console.log(this.showChannels)
+            console.log(response.data.searchResult)
+          } else {
+            // 沒找到數據
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }
 };
 </script>
 <style>
