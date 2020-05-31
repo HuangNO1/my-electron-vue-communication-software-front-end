@@ -392,6 +392,10 @@ export default {
     },
   },
   // --------------------------------------------
+  beforeRouteUpdate(to, from, next) {
+    // 自動登入
+    this.AutoSignInRequest();
+  },
   created() {
     // 自動登入
     this.AutoSignInRequest();

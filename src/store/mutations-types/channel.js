@@ -1,0 +1,5 @@
+export const UPDATE_ALL_CHANNELS = "updateAllChannels"
+export const DELETE_A_CHANNEL = "deleteAChannel"
+export const ADD_A_CHANNEL = "addAChannel"
+export const CREATE_A_Channel = "createAChannel"
+export const EXIT_A_CHANNEL = "exitAChannel"
