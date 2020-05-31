@@ -118,7 +118,9 @@
                     dark
                   >
                     <v-list-item-avatar>
-                      <v-img src="https://avatars1.githubusercontent.com/u/11587044?s=460&v=4"></v-img>
+                      <v-img
+                        src="https://avatars1.githubusercontent.com/u/11587044?s=460&v=4"
+                      ></v-img>
                     </v-list-item-avatar>
 
                     <v-list-item-content>
@@ -187,19 +189,55 @@ import {
 } from "../store/mutations-types/user";
 import { ADD_TO_FRIEND, DELETE_FRIEND } from "../store/mutations-types/friend";
 import {
-    UPDATE_ALL_MESSAGE,
-    ADD_A_MESSAGE
-} from '../store/mutations-types/message'
+  UPDATE_ALL_MESSAGE,
+  ADD_A_MESSAGE,
+} from "../store/mutations-types/message";
 // 引入 axios
 import axios from "axios";
-
 
 export default {
   components: {
     Chat,
     VueResizable,
   },
-  created() {},
+  created() {
+    this.showChannels = [];
+    let jwt_token = Vue.localStorage.get("jwt_token");
+    let UserID = Vue.localStorage.get("user_id");
+    let data = new FormData();
+    data.append("id", UserID);
+    axios
+      .post(this.requestGetAllChannelsURL, data, {
+        headers: {
+          "Content-Type": "form-data",
+          Authorization: `Bearer ${jwt_token}`,
+        },
+        transformRequest: [(headers) => data], //預設值，不做任何轉換
+      })
+      .then((response) => {
+        console.log(response.data);
+        if (response.data.data === undefined) {
+          // token 失效
+          // 移除 token 和 id
+          Vue.localStorage.remove("jwt_token");
+          Vue.localStorage.remove("user_id");
+          // 重新登入
+          document.location.href = "/sign";
+        } else if (response.data.data) {
+          // 有找到數據
+          this.showChannels = response.data.searchResult;
+          // 推入 VueX
+          this.$store.commit(UPDATE_ALL_CHANNELS, response.data.searchResult);
+          console.log(this.showChannels);
+          console.log(response.data.searchResult);
+        } else {
+          // 沒找到數據
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  },
   data() {
     return {
       selectItem: 0,
@@ -215,25 +253,17 @@ export default {
         { title: "Logout", icon: "mdi-logout-variant" },
       ],
       channelItems: [],
-      showChannels: [
-        // {
-        //   channelName: "AAA",
-        //   channelType: "gg"
-        // },
-        // {
-        //   channelName: "BBB",
-        //   channelType: "test"
-        // }
-      ],
+      showChannels: [],
       searchChannelKeyword: "",
       // request url
       // 返回使用者所有加入的 Channel
-      requestGetAllChannelsURL: "http://localhost:5000/user/channels/getAllChannels",
+      requestGetAllChannelsURL:
+        "http://localhost:5000/user/channels/getAllChannels",
       // 模糊搜索 所有 channelType 是 group 的群
-      requestSearchChannelsURL: "http://localhost:5000/user/channels/searchChannels",
+      requestSearchChannelsURL:
+        "http://localhost:5000/user/channels/searchChannels",
       // 模糊搜索使用者
-      requestSearchUsersURL: "http://localhost:5000/user/searchUsers"
-
+      requestSearchUsersURL: "http://localhost:5000/user/searchUsers",
     };
   },
   watch: {
@@ -241,46 +271,54 @@ export default {
       // 搜索 channel
       // 初始化
       this.showChannels = [];
-      let jwt_token = Vue.localStorage.get("jwt_token");
-      let data = new FormData();
-      data.append("keyword", this.searchChannelKeyword)
-      axios
-        .post(this.requestSearchChannelsURL, data, {
-          headers: { "Content-Type": "form-data", Authorization: `Bearer ${jwt_token}` },
-          transformRequest: [(headers) => data], //預設值，不做任何轉換
-        })
-        .then((response) => {
-          console.log(response.data);
-          if (response.data.data === undefined) {
-            // token 失效
-            // 移除 token 和 id
-            Vue.localStorage.remove("jwt_token");
-            Vue.localStorage.remove("user_id");
-            // 重新登入
-            document.location.href = "/sign";
-          } else if (response.data.data) {
-            // 有找到數據
-            // for(let i = 0 ; i < response.data.searchResult.length; i++) {
-            //   var temp = {
-            //     id: response.data.searchResult[i].id,
-            //     channelType: response.data.searchResult[i].channelType,
-            //     adminId: response.data.searchResult[i].adminId,
-            //     channelName: response.data.searchResult[i].channelName
-            //   }
-            //   this.showChannels.push(temp)
-            // }
-            this.showChannels = response.data.searchResult
-            console.log(this.showChannels)
-            console.log(response.data.searchResult)
-          } else {
-            // 沒找到數據
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
-  }
+      if (this.searchChannelKeyword === "") {
+        // 沒有關鍵字
+        this.showChannels = this.allChannels;
+      } else {
+        // 有關建字
+        let jwt_token = Vue.localStorage.get("jwt_token");
+        let data = new FormData();
+        data.append("keyword", this.searchChannelKeyword);
+        axios
+          .post(this.requestSearchChannelsURL, data, {
+            headers: {
+              "Content-Type": "form-data",
+              Authorization: `Bearer ${jwt_token}`,
+            },
+            transformRequest: [(headers) => data], //預設值，不做任何轉換
+          })
+          .then((response) => {
+            console.log(response.data);
+            if (response.data.data === undefined) {
+              // token 失效
+              // 移除 token 和 id
+              Vue.localStorage.remove("jwt_token");
+              Vue.localStorage.remove("user_id");
+              // 重新登入
+              document.location.href = "/sign";
+            } else if (response.data.data) {
+              // 有找到數據
+              this.showChannels = response.data.searchResult;
+              console.log(this.showChannels);
+              console.log(response.data.searchResult);
+            } else {
+              // 沒找到數據
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+    },
+  },
+  computed: {
+    // get data from vuex
+    ...mapState({
+      allChannels: (state) => {
+        return state.channel.channels;
+      },
+    }),
+  },
 };
 </script>
 <style>
